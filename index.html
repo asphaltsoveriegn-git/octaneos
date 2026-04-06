@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OctaneOS — AI Intelligence Layer for Vehicles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg-deep:#0A0A0A;
+  --bg-surface:#131313;
+  --bg-card:#1A1A1A;
+  --bg-card-hover:#1F1F1F;
+  --bg-elevated:#222;
+  --accent:#C8703A;
+  --accent-light:#D4894F;
+  --accent-dark:#A85A2A;
+  --accent-copper:rgba(200,112,58,.12);
+  --silver:#9A9A9A;
+  --silver-light:#B8B8B8;
+  --titanium:#6E6E6E;
+  --text-primary:#EAEAEA;
+  --text-secondary:#A0A0A0;
+  --text-dim:#6A6A6A;
+  --divider:#2A2A2A;
+  --divider-light:#333;
+  --border-subtle:rgba(255,255,255,.04);
+  --border-accent:rgba(200,112,58,.25);
+  --font-display:'Instrument Serif', Georgia, serif;
+  --font-body:'DM Sans', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --section-gap:140px;
+  --radius:8px;
+  --radius-lg:14px;
+  --ease:cubic-bezier(.25,.46,.45,.94);
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:var(--font-body);
+  background:var(--bg-deep);
+  color:var(--text-primary);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ── Carbon Fiber Background Texture ── */
+.carbon-bg{
+  position:relative;
+}
+.carbon-bg::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    /* diagonal weave pattern 1 */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,.018) 2px,
+      rgba(255,255,255,.018) 3px
+    ),
+    /* diagonal weave pattern 2 */
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,.015) 2px,
+      rgba(255,255,255,.015) 3px
+    ),
+    /* subtle micro-grid */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,.008) 10px,
+      rgba(255,255,255,.008) 11px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,.008) 10px,
+      rgba(255,255,255,.008) 11px
+    );
+  pointer-events:none;
+  z-index:0;
+}
+.carbon-bg>*{position:relative;z-index:1}
+
+/* ── Brushed Metal Texture ── */
+.brushed-metal{
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(255,255,255,.012) 1px,
+      rgba(255,255,255,.012) 2px
+    ),
+    linear-gradient(180deg,var(--bg-card) 0%,rgba(26,26,26,.95) 100%);
+}
+
+/* ── Layout ── */
+.container{max-width:1200px;margin:0 auto;padding:0 32px}
+section{padding:var(--section-gap) 0;position:relative}
+
+/* ── Precision Divider ── */
+.divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent 0%,var(--divider) 20%,var(--divider-light) 50%,var(--divider) 80%,transparent 100%);
+  max-width:1200px;
+  margin:0 auto;
+}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:15px 32px;
+  border-radius:6px;
+  font-family:var(--font-body);
+  font-weight:600;
+  font-size:.9rem;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  text-decoration:none;
+  cursor:pointer;
+  border:none;
+  transition:all .35s var(--ease);
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent-dark) 100%);
+  color:#fff;
+  box-shadow:0 4px 20px rgba(200,112,58,.25),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 32px rgba(200,112,58,.35),inset 0 1px 0 rgba(255,255,255,.15);
+}
+.btn-outline{
+  background:transparent;
+  color:var(--text-primary);
+  border:1.5px solid var(--divider-light);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+}
+.btn-outline:hover{
+  border-color:var(--silver);
+  background:rgba(255,255,255,.03);
+  transform:translateY(-2px);
+}
+
+/* ── Navigation ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:16px 0;
+  background:rgba(10,10,10,.85);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border-subtle);
+  transition:all .3s;
+}
+nav .container{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-mark{
+  width:36px;height:36px;
+  border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;font-size:.85rem;color:#fff;
+  box-shadow:0 2px 8px rgba(200,112,58,.3);
+}
+.logo-text{font-family:var(--font-body);font-weight:700;font-size:1.05rem;color:var(--text-primary);letter-spacing:.03em}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:.03em;transition:color .2s}
+.nav-links a:hover{color:var(--text-primary)}
+
+/* ── Tag / Label ── */
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;
+  border-radius:100px;
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  border:1px solid var(--border-accent);
+  color:var(--accent-light);
+  background:var(--accent-copper);
+}
+.tag::before{
+  content:'';
+  width:5px;height:5px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 6px var(--accent);
+}
+
+/* ── Section Header ── */
+.section-header{margin-bottom:64px}
+.section-label{
+  font-family:var(--font-mono);
+  font-size:.7rem;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--titanium);
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-label::before{
+  content:'';width:24px;height:1px;
+  background:var(--accent);
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:400;
+  color:var(--text-primary);
+  line-height:1.15;
+  margin-bottom:16px;
+}
+.section-subtitle{
+  font-size:1.05rem;
+  color:var(--text-secondary);
+  max-width:560px;
+  line-height:1.7;
+}
+
+/* ══════════════════════════════════
+   HERO SECTION
+   ══════════════════════════════════ */
+.hero{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  padding-top:100px;
+  padding-bottom:80px;
+  background:
+    radial-gradient(ellipse 70% 50% at 70% 40%,rgba(200,112,58,.06) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 60% at 20% 80%,rgba(30,30,30,.5) 0%,transparent 60%),
+    var(--bg-deep);
+  overflow:hidden;
+}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.hero-content{max-width:560px}
+.hero-content .tag{margin-bottom:28px}
+.hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(2.8rem,5.5vw,4.2rem);
+  font-weight:400;
+  line-height:1.08;
+  margin-bottom:24px;
+  color:var(--text-primary);
+}
+.hero h1 em{
+  font-style:italic;
+  color:var(--accent-light);
+}
+.hero-desc{
+  font-size:1.1rem;
+  color:var(--text-secondary);
+  line-height:1.75;
+  margin-bottom:40px;
+  max-width:480px;
+}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:48px}
+.hero-stats{display:flex;gap:40px}
+.hero-stat{display:flex;flex-direction:column}
+.hero-stat-value{
+  font-family:var(--font-mono);
+  font-size:1.6rem;
+  font-weight:500;
+  color:var(--accent-light);
+  line-height:1;
+  margin-bottom:4px;
+}
+.hero-stat-label{
+  font-family:var(--font-mono);
+  font-size:.65rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--titanium);
+}
+
+/* Hero Visual — ECU / Engine Motif */
+.hero-visual{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hero-ecu{
+  width:100%;
+  max-width:480px;
+  aspect-ratio:1;
+  position:relative;
+}
+.ecu-core{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:180px;height:180px;
+  border-radius:20px;
+  background:linear-gradient(145deg,#1E1E1E 0%,#141414 100%);
+  border:2px solid var(--divider-light);
+  box-shadow:
+    0 0 60px rgba(200,112,58,.08),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 20px 60px rgba(0,0,0,.5);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+}
+.ecu-label{
+  font-family:var(--font-mono);
+  font-size:.55rem;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--titanium);
+  margin-bottom:6px;
+}
+.ecu-name{
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:1.1rem;
+  color:var(--text-primary);
+  letter-spacing:.03em;
+}
+.ecu-version{
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  color:var(--accent);
+  margin-top:4px;
+}
+/* circuit traces */
+.trace{
+  position:absolute;
+  background:var(--divider);
+}
+.trace-h{height:1px;width:60px}
+.trace-v{width:1px;height:60px}
+.trace.t1{top:50%;left:calc(50% - 150px);transform:translateY(-50%)}
+.trace.t2{top:50%;right:calc(50% - 150px);transform:translateY(-50%)}
+.trace.t3{left:50%;top:calc(50% - 150px);transform:translateX(-50%)}
+.trace.t4{left:50%;bottom:calc(50% - 150px);transform:translateX(-50%)}
+/* node dots */
+.node{
+  position:absolute;
+  width:8px;height:8px;
+  border-radius:50%;
+  border:1.5px solid var(--accent);
+  background:var(--bg-deep);
+}
+.node.n1{top:50%;left:calc(50% - 160px);transform:translate(-50%,-50%)}
+.node.n2{top:50%;right:calc(50% - 160px);transform:translate(50%,-50%)}
+.node.n3{left:50%;top:calc(50% - 160px);transform:translate(-50%,-50%)}
+.node.n4{left:50%;bottom:calc(50% - 160px);transform:translate(-50%,50%)}
+/* orbit rings */
+.orbit{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.03);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+}
+.orbit-1{width:280px;height:280px;border-color:rgba(255,255,255,.04)}
+.orbit-2{width:380px;height:380px;border-color:rgba(255,255,255,.025)}
+.orbit-3{width:460px;height:460px;border-style:dashed;border-color:rgba(200,112,58,.08)}
+/* satellite modules */
+.sat{
+  position:absolute;
+  padding:8px 14px;
+  border-radius:6px;
+  background:var(--bg-card);
+  border:1px solid var(--divider);
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--text-secondary);
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+  white-space:nowrap;
+}
+.sat-icon{color:var(--accent);margin-right:6px}
+.sat.s1{top:8%;left:15%}
+.sat.s2{top:12%;right:5%}
+.sat.s3{bottom:25%;left:2%}
+.sat.s4{bottom:8%;right:10%}
+.sat.s5{top:42%;right:-5%}
+
+/* ══════════════════════════════════
+   PROBLEM SECTION
+   ══════════════════════════════════ */
+.problem{
+  background:var(--bg-surface);
+}
+.problem-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+}
+.problem-card{
+  padding:36px 32px;
+  border-radius:var(--radius-lg);
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  transition:all .35s var(--ease);
+  position:relative;
+  overflow:hidden;
+}
+.problem-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0;
+  transition:opacity .35s;
+}
+.problem-card:hover{
+  border-color:var(--divider-light);
+  transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,.3);
+}
+.problem-card:hover::before{opacity:1}
+.problem-icon{
+  width:48px;height:48px;
+  border-radius:10px;
+  background:linear-gradient(135deg,rgba(200,112,58,.12),rgba(200,112,58,.04));
+  border:1px solid rgba(200,112,58,.15);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+  font-size:1.1rem;
+}
+.problem-card h3{
+  font-size:1.05rem;
+  font-weight:600;
+  margin-bottom:10px;
+  color:var(--text-primary);
+}
+.problem-card p{
+  font-size:.9rem;
+  color:var(--text-secondary);
+  line-height:1.65;
+}
+
+/* ══════════════════════════════════
+   PLATFORM SECTION
+   ══════════════════════════════════ */
+.platform{background:var(--bg-deep)}
+.pipeline{
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  position:relative;
+}
+.pipeline-stage{
+  flex:1;
+  padding:32px 28px;
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  position:relative;
+  transition:all .35s var(--ease);
+}
+.pipeline-stage:first-child{border-radius:var(--radius-lg) 0 0 var(--radius-lg)}
+.pipeline-stage:last-child{border-radius:0 var(--radius-lg) var(--radius-lg) 0}
+.pipeline-stage:hover{
+  background:var(--bg-card-hover);
+  border-color:var(--divider-light);
+}
+.pipeline-stage:not(:last-child)::after{
+  content:'›';
+  position:absolute;
+  right:-8px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:1.2rem;
+  color:var(--accent);
+  z-index:2;
+  background:var(--bg-deep);
+  width:16px;height:16px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  border:1px solid var(--divider);
+}
+.stage-num{
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:12px;
+}
+.pipeline-stage h3{
+  font-size:.95rem;
+  font-weight:600;
+  margin-bottom:8px;
+  color:var(--text-primary);
+}
+.pipeline-stage p{
+  font-size:.8rem;
+  color:var(--text-secondary);
+  line-height:1.6;
+}
+
+/* ══════════════════════════════════
+   DEMO SECTION
+   ══════════════════════════════════ */
+.demo{
+  background:var(--bg-surface);
+}
+.demo-showcase{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:24px;
+  margin-bottom:24px;
+}
+.demo-card{
+  border-radius:var(--radius-lg);
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  overflow:hidden;
+  transition:all .35s var(--ease);
+}
+.demo-card:hover{
+  border-color:var(--divider-light);
+  box-shadow:0 8px 32px rgba(0,0,0,.3);
+}
+.demo-card-header{
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.demo-card-title{
+  display:flex;align-items:center;gap:10px;
+}
+.demo-card-title h3{
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--text-primary);
+}
+.demo-card-badge{
+  font-family:var(--font-mono);
+  font-size:.55rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:3px 8px;
+  border-radius:4px;
+  background:rgba(200,112,58,.1);
+  color:var(--accent);
+  border:1px solid rgba(200,112,58,.15);
+}
+.demo-card-body{padding:24px}
+
+/* Oscilloscope */
+.oscilloscope{
+  height:220px;
+  position:relative;
+  overflow:hidden;
+  border-radius:6px;
+  background:#0D0D0D;
+  border:1px solid var(--divider);
+}
+.osc-grid{
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px),
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,.03) 39px,rgba(255,255,255,.03) 40px);
+}
+.osc-center-h,.osc-center-v{position:absolute;background:rgba(200,112,58,.12)}
+.osc-center-h{top:50%;left:0;right:0;height:1px}
+.osc-center-v{left:50%;top:0;bottom:0;width:1px}
+.osc-wave{
+  position:absolute;
+  top:50%;left:0;right:0;
+  height:2px;
+  transform:translateY(-50%);
+}
+.osc-wave svg{width:100%;height:120px;position:absolute;top:-60px}
+.osc-wave path{fill:none;stroke:var(--accent);stroke-width:2;opacity:.7}
+.osc-wave .wave2 path{stroke:var(--silver);stroke-width:1.5;opacity:.35;stroke-dasharray:4 3}
+.osc-readout{
+  position:absolute;top:10px;left:12px;
+  font-family:var(--font-mono);font-size:.55rem;
+  color:var(--accent);opacity:.6;
+  line-height:1.8;
+}
+.osc-trigger{
+  position:absolute;top:10px;right:12px;
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-mono);font-size:.5rem;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--titanium);
+}
+.osc-trigger-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#4CAF50;
+  box-shadow:0 0 4px #4CAF50;
+}
+
+/* Triage card */
+.triage-list{display:flex;flex-direction:column;gap:10px}
+.triage-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;
+  border-radius:8px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border-subtle);
+  transition:background .2s;
+}
+.triage-item:hover{background:rgba(255,255,255,.04)}
+.triage-severity{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+}
+.sev-critical{background:#E53935;box-shadow:0 0 6px rgba(229,57,53,.4)}
+.sev-warning{background:#FB8C00;box-shadow:0 0 6px rgba(251,140,0,.3)}
+.sev-info{background:#43A047;box-shadow:0 0 6px rgba(67,160,71,.3)}
+.triage-msg{
+  font-size:.8rem;color:var(--text-secondary);flex:1;
+}
+.triage-code{
+  font-family:var(--font-mono);font-size:.65rem;color:var(--titanium);
+}
+
+/* Bottom demo row */
+.demo-bottom{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+/* Digital Twin */
+.twin-visual{
+  height:200px;
+  position:relative;
+  border-radius:8px;
+  background:#0D0D0D;
+  border:1px solid var(--divider);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.car-outline{
+  width:200px;
+  opacity:.7;
+}
+.car-outline svg{width:100%}
+.twin-nodes{position:absolute;inset:0}
+.twin-node{
+  position:absolute;
+  width:10px;height:10px;
+  border-radius:50%;
+  border:1.5px solid var(--accent);
+  background:rgba(200,112,58,.15);
+}
+.twin-node::after{
+  content:attr(data-label);
+  position:absolute;
+  top:-18px;left:50%;transform:translateX(-50%);
+  font-family:var(--font-mono);font-size:.45rem;
+  color:var(--titanium);
+  white-space:nowrap;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.tn1{top:35%;left:25%}
+.tn2{top:35%;right:25%}
+.tn3{top:60%;left:20%}
+.tn4{top:60%;right:20%}
+.tn5{top:30%;left:48%}
+
+/* Telemetry */
+.telemetry-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.telem-item{
+  padding:14px 16px;
+  border-radius:8px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--border-subtle);
+}
+.telem-label{
+  font-family:var(--font-mono);
+  font-size:.5rem;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--titanium);
+  margin-bottom:6px;
+}
+.telem-value{
+  font-family:var(--font-mono);
+  font-size:1.1rem;
+  font-weight:500;
+  color:var(--text-primary);
+}
+.telem-unit{
+  font-size:.65rem;
+  color:var(--text-dim);
+  margin-left:2px;
+}
+.telem-bar{
+  margin-top:6px;
+  height:3px;
+  border-radius:2px;
+  background:var(--divider);
+  overflow:hidden;
+}
+.telem-bar-fill{
+  height:100%;
+  border-radius:2px;
+  background:linear-gradient(90deg,var(--accent-dark),var(--accent));
+}
+
+/* ══════════════════════════════════
+   FEATURES SECTION
+   ══════════════════════════════════ */
+.features{background:var(--bg-deep)}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+}
+.feature-card{
+  padding:36px 30px;
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border-subtle);
+  transition:all .35s var(--ease);
+  position:relative;
+  overflow:hidden;
+}
+.feature-card::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0;
+  transition:opacity .35s;
+}
+.feature-card:hover{
+  border-color:var(--divider-light);
+  transform:translateY(-4px);
+  box-shadow:0 16px 48px rgba(0,0,0,.25);
+}
+.feature-card:hover::after{opacity:.6}
+.feature-card:nth-child(odd){background:var(--bg-card)}
+.feature-card:nth-child(even){background:var(--bg-surface)}
+.feature-icon-wrap{
+  width:44px;height:44px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+  font-size:1rem;
+  border:1px solid var(--divider);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent,transparent 1px,
+      rgba(255,255,255,.01) 1px,rgba(255,255,255,.01) 2px
+    ),
+    var(--bg-deep);
+}
+.feature-card h3{
+  font-size:1rem;
+  font-weight:600;
+  margin-bottom:10px;
+  color:var(--text-primary);
+}
+.feature-card p{
+  font-size:.85rem;
+  color:var(--text-secondary);
+  line-height:1.65;
+}
+
+/* ══════════════════════════════════
+   VISION SECTION
+   ══════════════════════════════════ */
+.vision{
+  background:var(--bg-surface);
+  text-align:center;
+}
+.vision-content{max-width:720px;margin:0 auto}
+.vision-quote{
+  font-family:var(--font-display);
+  font-size:clamp(1.6rem,3.5vw,2.6rem);
+  font-style:italic;
+  line-height:1.35;
+  color:var(--text-primary);
+  margin-bottom:24px;
+}
+.vision-attr{
+  font-size:.85rem;
+  color:var(--text-secondary);
+}
+.vision-roadmap{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+  margin-top:64px;
+}
+.roadmap-item{
+  padding:28px 20px;
+  border-radius:var(--radius);
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  text-align:center;
+  transition:all .3s var(--ease);
+}
+.roadmap-item:hover{border-color:var(--divider-light)}
+.roadmap-year{
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:8px;
+}
+.roadmap-milestone{
+  font-size:.9rem;
+  font-weight:600;
+  color:var(--text-primary);
+  margin-bottom:6px;
+}
+.roadmap-desc{
+  font-size:.75rem;
+  color:var(--text-secondary);
+  line-height:1.5;
+}
+
+/* ══════════════════════════════════
+   CTA SECTION
+   ══════════════════════════════════ */
+.cta-section{
+  padding:120px 0;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.cta-section::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 60%,rgba(200,112,58,.06) 0%,transparent 70%),
+    var(--bg-deep);
+}
+.cta-section>*{position:relative;z-index:1}
+.cta-frame{
+  max-width:700px;
+  margin:0 auto;
+  padding:64px 48px;
+  border-radius:20px;
+  background:
+    linear-gradient(180deg,rgba(26,26,26,.9) 0%,rgba(19,19,19,.95) 100%);
+  border:1px solid var(--divider);
+  box-shadow:0 24px 80px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);
+}
+.cta-title{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,4vw,2.8rem);
+  font-weight:400;
+  margin-bottom:16px;
+  color:var(--text-primary);
+}
+.cta-desc{
+  font-size:1.05rem;
+  color:var(--text-secondary);
+  margin-bottom:40px;
+  max-width:500px;
+  margin-left:auto;margin-right:auto;
+  line-height:1.7;
+}
+.cta-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.cta-partners{
+  font-family:var(--font-mono);
+  font-size:.6rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--titanium);
+}
+
+/* ══════════════════════════════════
+   FOOTER
+   ══════════════════════════════════ */
+footer{
+  padding:48px 0;
+  border-top:1px solid var(--divider);
+  background:var(--bg-deep);
+}
+footer .container{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.footer-copy{
+  font-size:.75rem;
+  color:var(--titanium);
+}
+.footer-links{display:flex;gap:24px}
+.footer-links a{
+  font-size:.75rem;
+  color:var(--text-dim);
+  text-decoration:none;
+  transition:color .2s;
+}
+.footer-links a:hover{color:var(--text-secondary)}
+
+/* ══════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════ */
+@media(max-width:1024px){
+  .hero-inner{grid-template-columns:1fr;gap:48px}
+  .hero-visual{order:-1;max-width:400px;margin:0 auto}
+  .pipeline{flex-direction:column}
+  .pipeline-stage{border-radius:var(--radius-lg) !important}
+  .pipeline-stage:not(:last-child)::after{display:none}
+  .demo-showcase{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+  :root{--section-gap:80px}
+  .problem-grid,.features-grid{grid-template-columns:1fr}
+  .demo-bottom{grid-template-columns:1fr}
+  .vision-roadmap{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .hero-stats{gap:24px}
+  .container{padding:0 20px}
+  .cta-frame{padding:40px 24px}
+}
+@media(max-width:480px){
+  .vision-roadmap{grid-template-columns:1fr}
+  .hero-stats{flex-direction:column;gap:16px}
+}
+
+/* ── Subtle Load Animations ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero-content{animation:fadeUp .8s var(--ease) .2s both}
+.hero-visual{animation:fadeUp .8s var(--ease) .5s both}
+
+@keyframes pulse{
+  0%,100%{opacity:.4}
+  50%{opacity:1}
+}
+.osc-trigger-dot{animation:pulse 2s ease-in-out infinite}
+</style>
+</head>
+<body>
+
+<!-- ── NAVIGATION ── -->
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-mark">O</div>
+      <span class="logo-text">OctaneOS</span>
+    </a>
+    <div class="nav-links">
+      <a href="#problem">Problem</a>
+      <a href="#platform">Platform</a>
+      <a href="#demo">Live Demo</a>
+      <a href="#features">Features</a>
+      <a href="#vision">Vision</a>
+      <a href="#cta" class="btn btn-primary" style="padding:10px 22px;font-size:.75rem">Request Pilot</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero carbon-bg">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="tag">Series Seed · Automotive AI</div>
+        <h1>The <em>intelligence layer</em> every vehicle needs</h1>
+        <p class="hero-desc">OctaneOS is the embedded AI operating system that transforms raw vehicle data into predictive diagnostics, real-time optimization, and autonomous decision-making — from ECU to cloud.</p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn btn-primary">Request a Pilot ›</a>
+          <a href="#demo" class="btn btn-outline">See Live Demo</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value">&lt;12ms</span>
+            <span class="hero-stat-label">Edge Inference</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">4.2M+</span>
+            <span class="hero-stat-label">Signals / Sec</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">97.3%</span>
+            <span class="hero-stat-label">Fault Prediction</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-ecu">
+          <div class="orbit orbit-3"></div>
+          <div class="orbit orbit-2"></div>
+          <div class="orbit orbit-1"></div>
+          <div class="trace trace-h t1"></div>
+          <div class="trace trace-h t2"></div>
+          <div class="trace trace-v t3"></div>
+          <div class="trace trace-v t4"></div>
+          <div class="node n1"></div>
+          <div class="node n2"></div>
+          <div class="node n3"></div>
+          <div class="node n4"></div>
+          <div class="ecu-core">
+            <span class="ecu-label">Module</span>
+            <span class="ecu-name">OctaneOS</span>
+            <span class="ecu-version">v2.4.1-stable</span>
+          </div>
+          <div class="sat s1"><span class="sat-icon">◈</span> CAN Bus</div>
+          <div class="sat s2"><span class="sat-icon">◈</span> LiDAR</div>
+          <div class="sat s3"><span class="sat-icon">◈</span> Powertrain</div>
+          <div class="sat s4"><span class="sat-icon">◈</span> Telemetry</div>
+          <div class="sat s5"><span class="sat-icon">◈</span> OBD-II</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── PROBLEM ── -->
+<section class="problem carbon-bg" id="problem">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">The Problem</div>
+      <h2 class="section-title">Vehicles generate terabytes.<br>Almost none of it is understood.</h2>
+      <p class="section-subtitle">Modern vehicles produce massive data streams from hundreds of sensors. Today, 95% of that data is discarded or ignored.</p>
+    </div>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon">⚙</div>
+        <h3>Blind Diagnostics</h3>
+        <p>OEMs rely on static fault codes designed decades ago. Root cause analysis is manual, slow, and reactive — costing billions in warranty claims annually.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">⏱</div>
+        <h3>No Real-Time Intelligence</h3>
+        <p>Vehicle data is batch-processed hours or days after collection. There is no embedded intelligence making decisions at the edge in real time.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon">◉</div>
+        <h3>Fragmented Stacks</h3>
+        <p>Each subsystem speaks its own protocol. CAN, LIN, FlexRay, Ethernet — there is no unified AI layer to correlate cross-domain signals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── PLATFORM ── -->
+<section class="platform" id="platform">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Platform Architecture</div>
+      <h2 class="section-title">From sensor to insight<br>in a single pipeline</h2>
+      <p class="section-subtitle">OctaneOS ingests raw vehicle bus data, processes it through on-device AI models, and delivers actionable intelligence — all under 12ms.</p>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-stage">
+        <div class="stage-num">Stage 01</div>
+        <h3>Signal Ingestion</h3>
+        <p>Multi-protocol data capture from CAN, CAN-FD, LIN, FlexRay, and automotive Ethernet at full bus speed.</p>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-num">Stage 02</div>
+        <h3>Edge Processing</h3>
+        <p>On-device normalization, feature extraction, and anomaly detection using quantized transformer models.</p>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-num">Stage 03</div>
+        <h3>AI Inference</h3>
+        <p>Real-time predictive diagnostics, component health scoring, and fault classification at the edge.</p>
+      </div>
+      <div class="pipeline-stage">
+        <div class="stage-num">Stage 04</div>
+        <h3>Cloud Sync</h3>
+        <p>Compressed telemetry upload for fleet analytics, model retraining, and long-horizon trend analysis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── LIVE DEMO ── -->
+<section class="demo carbon-bg" id="demo">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Live Demo</div>
+      <h2 class="section-title">Engineering control center</h2>
+      <p class="section-subtitle">Real-time views into what OctaneOS sees, processes, and decides — every millisecond.</p>
+    </div>
+
+    <div class="demo-showcase">
+      <!-- Oscilloscope -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <div class="demo-card-title">
+            <h3>Signal Oscilloscope</h3>
+          </div>
+          <div class="demo-card-badge">Live Feed</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="oscilloscope">
+            <div class="osc-grid"></div>
+            <div class="osc-center-h"></div>
+            <div class="osc-center-v"></div>
+            <div class="osc-readout">
+              CH1 — CAN.RPM<br>
+              500mV/div<br>
+              2ms/div
+            </div>
+            <div class="osc-trigger">
+              <span class="osc-trigger-dot"></span>
+              Trigger: Auto
+            </div>
+            <div class="osc-wave">
+              <svg viewBox="0 0 600 120" preserveAspectRatio="none">
+                <path d="M0,60 Q25,20 50,60 T100,60 T150,60 T200,60 T250,60 T300,60 T350,60 T400,60 T450,60 T500,60 T550,60 T600,60" />
+              </svg>
+              <svg class="wave2" viewBox="0 0 600 120" preserveAspectRatio="none">
+                <path d="M0,60 Q30,35 60,60 T120,60 T180,60 T240,60 T300,60 T360,60 T420,60 T480,60 T540,60 T600,60" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Triage -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <div class="demo-card-title">
+            <h3>AI Fault Triage</h3>
+          </div>
+          <div class="demo-card-badge">Real-Time</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="triage-list">
+            <div class="triage-item">
+              <div class="triage-severity sev-critical"></div>
+              <span class="triage-msg">Turbo wastegate actuator response &gt; 340ms</span>
+              <span class="triage-code">P0299</span>
+            </div>
+            <div class="triage-item">
+              <div class="triage-severity sev-warning"></div>
+              <span class="triage-msg">Catalytic converter efficiency below threshold</span>
+              <span class="triage-code">P0420</span>
+            </div>
+            <div class="triage-item">
+              <div class="triage-severity sev-info"></div>
+              <span class="triage-msg">O2 sensor B1S2 heater circuit nominal</span>
+              <span class="triage-code">OK</span>
+            </div>
+            <div class="triage-item">
+              <div class="triage-severity sev-warning"></div>
+              <span class="triage-msg">MAF sensor drift detected — recalibrate</span>
+              <span class="triage-code">P0101</span>
+            </div>
+            <div class="triage-item">
+              <div class="triage-severity sev-info"></div>
+              <span class="triage-msg">Transmission fluid temp within operating range</span>
+              <span class="triage-code">OK</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-bottom">
+      <!-- Digital Twin -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <div class="demo-card-title">
+            <h3>Digital Twin</h3>
+          </div>
+          <div class="demo-card-badge">Simulation</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="twin-visual">
+            <!-- Simplified vehicle outline using pure CSS -->
+            <svg class="car-outline" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30 65 L55 65 L70 40 L170 40 L195 65 L220 65 L220 75 L210 80 L185 80 L180 75 L60 75 L55 80 L30 80 L20 75 L20 70 Z" stroke="var(--accent)" stroke-width="1.5" fill="none" opacity=".5"/>
+              <circle cx="55" cy="78" r="12" stroke="var(--silver)" stroke-width="1" fill="none" opacity=".3"/>
+              <circle cx="185" cy="78" r="12" stroke="var(--silver)" stroke-width="1" fill="none" opacity=".3"/>
+              <line x1="80" y1="40" x2="80" y2="65" stroke="var(--divider-light)" stroke-width=".5"/>
+              <line x1="155" y1="40" x2="155" y2="65" stroke="var(--divider-light)" stroke-width=".5"/>
+            </svg>
+            <div class="twin-nodes">
+              <div class="twin-node tn1" data-label="ECU-A"></div>
+              <div class="twin-node tn2" data-label="ECU-B"></div>
+              <div class="twin-node tn3" data-label="FL Sensor"></div>
+              <div class="twin-node tn4" data-label="FR Sensor"></div>
+              <div class="twin-node tn5" data-label="Gateway"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telemetry -->
+      <div class="demo-card">
+        <div class="demo-card-header">
+          <div class="demo-card-title">
+            <h3>Live Telemetry</h3>
+          </div>
+          <div class="demo-card-badge">Streaming</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="telemetry-grid">
+            <div class="telem-item">
+              <div class="telem-label">Engine RPM</div>
+              <div class="telem-value">3,247<span class="telem-unit">rpm</span></div>
+              <div class="telem-bar"><div class="telem-bar-fill" style="width:42%"></div></div>
+            </div>
+            <div class="telem-item">
+              <div class="telem-label">Coolant Temp</div>
+              <div class="telem-value">92.4<span class="telem-unit">°C</span></div>
+              <div class="telem-bar"><div class="telem-bar-fill" style="width:68%"></div></div>
+            </div>
+            <div class="telem-item">
+              <div class="telem-label">Boost Pressure</div>
+              <div class="telem-value">1.82<span class="telem-unit">bar</span></div>
+              <div class="telem-bar"><div class="telem-bar-fill" style="width:74%"></div></div>
+            </div>
+            <div class="telem-item">
+              <div class="telem-label">Battery SOC</div>
+              <div class="telem-value">87.1<span class="telem-unit">%</span></div>
+              <div class="telem-bar"><div class="telem-bar-fill" style="width:87%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── FEATURES ── -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">Core Capabilities</div>
+      <h2 class="section-title">Engineered for precision</h2>
+      <p class="section-subtitle">Every module in OctaneOS is purpose-built for the demands of automotive-grade intelligence.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrap">◈</div>
+        <h3>Predictive Diagnostics</h3>
+        <p>ML models trained on 2B+ fault events detect component degradation 4–6 weeks before failure, eliminating unplanned downtime.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">⊞</div>
+        <h3>Multi-Bus Fusion</h3>
+        <p>Unified signal correlation across CAN, LIN, FlexRay, and automotive Ethernet — one coherent data model for the entire vehicle.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">◎</div>
+        <h3>Edge-First Architecture</h3>
+        <p>Quantized transformer inference under 12ms on automotive-grade MCUs. No cloud dependency for safety-critical decisions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">△</div>
+        <h3>Digital Twin Sync</h3>
+        <p>Real-time virtual representation of every subsystem. Simulate faults, test calibrations, and validate updates before deployment.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">▣</div>
+        <h3>Fleet Intelligence</h3>
+        <p>Aggregate telemetry from thousands of vehicles to surface systemic trends, optimize maintenance schedules, and reduce TCO.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">⬡</div>
+        <h3>OEM Integration SDK</h3>
+        <p>Production-ready APIs, AUTOSAR-compatible middleware, and certified safety modules for seamless integration into existing stacks.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── VISION ── -->
+<section class="vision carbon-bg" id="vision">
+  <div class="container">
+    <div class="section-header" style="text-align:center;margin-bottom:40px">
+      <div class="section-label" style="justify-content:center">Vision</div>
+    </div>
+    <div class="vision-content">
+      <p class="vision-quote">"Every vehicle on the road will have an intelligence layer. OctaneOS is building that layer."</p>
+      <p class="vision-attr">— OctaneOS Founding Team</p>
+    </div>
+    <div class="vision-roadmap">
+      <div class="roadmap-item">
+        <div class="roadmap-year">2025</div>
+        <div class="roadmap-milestone">Pilot Launch</div>
+        <div class="roadmap-desc">First OEM integration with Tier-1 supplier partner. Edge SDK v1 deployed on production ECUs.</div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-year">2026</div>
+        <div class="roadmap-milestone">Fleet Scale</div>
+        <div class="roadmap-desc">10K+ vehicles on platform. Fleet analytics dashboard and predictive maintenance API in production.</div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-year">2027</div>
+        <div class="roadmap-milestone">Multi-OEM</div>
+        <div class="roadmap-desc">Platform expansion to 3+ OEMs. AUTOSAR Adaptive integration. V2X data fusion capabilities.</div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-year">2028</div>
+        <div class="roadmap-milestone">Autonomous Ready</div>
+        <div class="roadmap-desc">Full ASIL-D certified intelligence layer. Autonomous decision support for L3+ driving systems.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── CTA ── -->
+<section class="cta-section carbon-bg" id="cta">
+  <div class="container">
+    <div class="cta-frame">
+      <div class="tag" style="margin-bottom:24px;display:inline-flex">Open for Pilots</div>
+      <h2 class="cta-title">Ready to integrate intelligence?</h2>
+      <p class="cta-desc">We're working with select OEMs and Tier-1 suppliers to deploy OctaneOS in production environments. Let's talk.</p>
+      <div class="cta-actions">
+        <a href="mailto:hello@octaneos.ai" class="btn btn-primary">Request a Pilot ›</a>
+        <a href="#" class="btn btn-outline">Download Technical Brief</a>
+      </div>
+      <p class="cta-partners">Backed by leading automotive and deep-tech investors</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="container">
+    <span class="footer-copy">&copy; 2025 OctaneOS Inc. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="#">Documentation</a>
+      <a href="#">GitHub</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
